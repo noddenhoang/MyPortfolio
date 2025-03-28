@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thái Hoàng Bảo</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div id="earth-container"></div>
+    
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <div class="logo">
+                <span>ThaiHoangBao</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home" class="active">Trang chủ</a></li>
+                <li><a href="#about">Giới thiệu</a></li>
+                <li><a href="#skills">Kỹ năng</a></li>
+                <li><a href="#projects">Dự án</a></li>
+                <li><a href="#contact">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger">
+                <div class="bar"></div>
+                <div class="bar"></div>
+                <div class="bar"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content">
+        <section id="home" class="section intro-section">
+            <div class="profile-container">
+                <div class="profile-content">
+                    <div class="profile-text">
+                        <h1>Thái Hoàng Bảo</h1>
+                        <p class="tagline">Lập trình viên Full Stack | AI Enthusiast</p>
+                        <div class="basic-info">
+                            <p><i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính</p>
+                        </div>
+                        <div class="cta-buttons">
+                            <a href="#contact" class="primary-btn">Liên hệ ngay</a>
+                            <a href="#projects" class="secondary-btn">Xem dự án</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scroll-down">
+                <span>Cuộn xuống</span>
+                <div class="arrow"></div>
+            </div>
+        </section>
+
+        <section id="about" class="section about-section">
+            <div class="section-header">
+                <h2>Giới Thiệu</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-card">
+                    <div class="about-icon">
+                        <i class="fa-solid fa-user-graduate"></i>
+                    </div>
+                    <p>Tôi là một lập trình viên đam mê công nghệ với kinh nghiệm làm việc trên Spring Boot, Flask, Vue.js và MySQL. Tôi có nền tảng vững chắc về phát triển back-end và front-end, đồng thời quan tâm đến việc ứng dụng AI vào thực tế để tối ưu hóa quy trình và nâng cao trải nghiệm người dùng.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="section skills-section">
+            <div class="section-header">
+                <h2>Kỹ Năng Chính</h2>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <h3>Back-end</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Spring Boot</li>
+                        <li><i class="fa-solid fa-check"></i> Flask</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fa-solid fa-laptop-code"></i>
+                    </div>
+                    <h3>Front-end</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Vue.js</li>
+                        <li><i class="fa-solid fa-check"></i> HTML/CSS/Bootstrap</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fa-solid fa-database"></i>
+                    </div>
+                    <h3>Database</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> MySQL</li>
+                    </ul>
+                </div>
+                <div class="skill-category">
+                    <div class="skill-icon">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h3>AI & Machine Learning</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Nghiên cứu & Ứng dụng</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="section projects-section">
+            <div class="section-header">
+                <h2>Dự Án</h2>
+            </div>
+            <div class="projects-container">
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <h3>Hệ thống Quản lý Thu chi</h3>
+                    <p>Xây dựng backend với Spring Boot và frontend với Vue.js, tích hợp cơ sở dữ liệu MySQL.</p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Spring Boot</span>
+                        <span class="tech-tag">Vue.js</span>
+                        <span class="tech-tag">MySQL</span>
+                    </div>
+                    <a href="#" class="project-link">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+                <div class="project-card">
+                    <div class="project-icon">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3>Hệ thống Quản lý Giáo dục</h3>
+                    <p>Trang web quản lý giáo dục sử dụng Flask, Vue.js và MySQL, tích hợp model phân loại đánh giá.</p>
+                    <div class="tech-stack">
+                        <span class="tech-tag">Flask</span>
+                        <span class="tech-tag">Vue.js</span>
+                        <span class="tech-tag">MySQL</span>
+                    </div>
+                    <a href="#" class="project-link">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="section contact-section">
+            <div class="section-header">
+                <h2>Liên Hệ</h2>
+            </div>
+            <div class="contact-container">
+                <div class="contact-form-container">
+                    <form class="contact-form">
+                        <div class="form-group">
+                            <label for="name">Họ tên</label>
+                            <input type="text" id="name" name="name" placeholder="Nhập họ tên của bạn" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email" placeholder="Nhập email của bạn" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Lời nhắn</label>
+                            <textarea id="message" name="message" placeholder="Nhập lời nhắn của bạn" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn">Gửi tin nhắn</button>
+                    </form>
+                </div>
+                <div class="contact-info">
+                    <div class="contact-links">
+                        <a href="mailto:contact@thaihoangbao181003@gmail.com" class="contact-link">
+                            <i class="fa-solid fa-envelope contact-icon"></i> Email
+                        </a>
+                        <a href="https://github.com/noddenhoang" class="contact-link" target="_blank">
+                            <i class="fa-brands fa-github contact-icon"></i> GitHub
+                        </a>
+                        <a href="https://linkedin.com/in/thaihoangbao" class="contact-link" target="_blank">
+                            <i class="fa-brands fa-linkedin contact-icon"></i> LinkedIn
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Thái Hoàng Bảo. All Rights Reserved.</p>
+                <div class="social-links">
+                    <a href="https://github.com/noddenhoang"><i class="fa-brands fa-github"></i></a>
+                    <a href="https://www.linkedin.com/in/thaihoangbao/"><i class="fa-brands fa-linkedin"></i></a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="script.js"></script>
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-links a').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop,
+                    behavior: 'smooth'
+                });
+                
+                // Update active class
+                document.querySelectorAll('.nav-links a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                this.classList.add('active');
+                
+                // Close mobile menu if open
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.querySelector('.navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const hamburger = document.querySelector('.hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        
+        hamburger.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking a link
+        document.querySelectorAll('.nav-links li a').forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.classList.remove('active');
+                hamburger.classList.remove('active');
+            });
+        });
+
+        // Active link on scroll
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('section');
+            const navLinks = document.querySelectorAll('.nav-links a');
+            
+            let current = '';
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                
+                if (pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+            
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
