@@ -24,7 +24,6 @@
                 <li><a href="#about">Giới thiệu</a></li>
                 <li><a href="#skills">Kỹ năng</a></li>
                 <li><a href="#projects">Dự án</a></li>
-                <li><a href="#contact">Liên hệ</a></li>
             </ul>
             <div class="language-switcher">
                 <button id="langToggle" class="lang-btn"><span class="current-lang">VI</span> | <span class="alt-lang">EN</span></button>
@@ -48,8 +47,8 @@
                             <p><i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính</p>
                         </div>
                         <div class="cta-buttons">
-                            <a href="#contact" class="primary-btn">Liên hệ ngay</a>
-                            <a href="#projects" class="secondary-btn">Xem dự án</a>
+                            <a href="#projects" class="primary-btn">Xem dự án</a>
+                            <a href="#about" class="secondary-btn">Giới thiệu</a>
                         </div>
                     </div>
                 </div>
@@ -154,50 +153,27 @@
             </div>
         </section>
 
-        <section id="contact" class="section contact-section">
-            <div class="section-header">
-                <h2>Liên Hệ</h2>
-            </div>
-            <div class="contact-container">
-                <div class="contact-form-container">
-                    <form class="contact-form">
-                        <div class="form-group">
-                            <label for="name">Họ tên</label>
-                            <input type="text" id="name" name="name" placeholder="Nhập họ tên của bạn" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" placeholder="Nhập email của bạn" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">Lời nhắn</label>
-                            <textarea id="message" name="message" placeholder="Nhập lời nhắn của bạn" required></textarea>
-                        </div>
-                        <button type="submit" class="submit-btn">Gửi tin nhắn</button>
-                    </form>
-                </div>
-                <div class="contact-info">
-                    <div class="contact-links">
-                        <a href="mailto:contact@thaihoangbao181003@gmail.com" class="contact-link">
-                            <i class="fa-solid fa-envelope contact-icon"></i> Email
-                        </a>
-                        <a href="https://github.com/noddenhoang" class="contact-link" target="_blank">
-                            <i class="fa-brands fa-github contact-icon"></i> GitHub
-                        </a>
-                        <a href="https://linkedin.com/in/thaihoangbao" class="contact-link" target="_blank">
-                            <i class="fa-brands fa-linkedin contact-icon"></i> LinkedIn
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </section>
-        
         <footer class="footer">
             <div class="footer-content">
-                <p>&copy; 2025 Thái Hoàng Bảo. All Rights Reserved.</p>
-                <div class="social-links">
-                    <a href="https://github.com/noddenhoang"><i class="fa-brands fa-github"></i></a>
-                    <a href="https://www.linkedin.com/in/thaihoangbao/"><i class="fa-brands fa-linkedin"></i></a>
+                <div class="footer-info">
+                    <p>&copy; 2025 Thái Hoàng Bảo. All Rights Reserved.</p>
+                </div>
+                <div class="footer-contact">
+                    <h3>Liên Hệ</h3>
+                    <div class="contact-links">
+                        <a href="mailto:contact@thaihoangbao181003@gmail.com" class="contact-link">
+                            <i class="fa-solid fa-envelope contact-icon"></i>
+                            <span>thaihoangbao181003@gmail.com</span>
+                        </a>
+                        <a href="https://github.com/noddenhoang" class="contact-link" target="_blank">
+                            <i class="fa-brands fa-github contact-icon"></i>
+                            <span>github.com/noddenhoang</span>
+                        </a>
+                        <a href="https://linkedin.com/in/thaihoangbao" class="contact-link" target="_blank">
+                            <i class="fa-brands fa-linkedin contact-icon"></i>
+                            <span>linkedin.com/in/thaihoangbao</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>
@@ -321,20 +297,18 @@
             document.querySelectorAll('.nav-links li a')[1].textContent = 'About';
             document.querySelectorAll('.nav-links li a')[2].textContent = 'Skills';
             document.querySelectorAll('.nav-links li a')[3].textContent = 'Projects';
-            document.querySelectorAll('.nav-links li a')[4].textContent = 'Contact';
             
             // Section headers
             document.querySelectorAll('.section-header h2')[0].textContent = 'About';
             document.querySelectorAll('.section-header h2')[1].textContent = 'Main Skills';
             document.querySelectorAll('.section-header h2')[2].textContent = 'Projects';
-            document.querySelectorAll('.section-header h2')[3].textContent = 'Contact';
             
             // Profile section
             document.querySelector('.tagline').textContent = 'Full Stack Developer | AI Enthusiast';
             document.querySelector('.info-label').textContent = 'Education:';
             document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Education:</span> Bachelor of Computer Science';
-            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Contact Now';
-            document.querySelectorAll('.cta-buttons a')[1].textContent = 'View Projects';
+            document.querySelectorAll('.cta-buttons a')[0].textContent = 'View Projects';
+            document.querySelectorAll('.cta-buttons a')[1].textContent = 'About';
             document.querySelector('.scroll-down span').textContent = 'Scroll Down';
             
             // About section
@@ -353,14 +327,8 @@
             document.querySelector('.projects-container .project-card:nth-child(2) p').textContent = 'Educational management website using Flask, Vue.js, and MySQL, with integrated assessment classification model.';
             document.querySelector('.projects-container .project-card:nth-child(2) .project-link').innerHTML = 'Details <i class="fa-solid fa-arrow-right"></i>';
             
-            // Contact section
-            document.querySelector('label[for="name"]').textContent = 'Full Name';
-            document.querySelector('input[id="name"]').placeholder = 'Enter your name';
-            document.querySelector('label[for="email"]').textContent = 'Email';
-            document.querySelector('input[id="email"]').placeholder = 'Enter your email';
-            document.querySelector('label[for="message"]').textContent = 'Message';
-            document.querySelector('textarea[id="message"]').placeholder = 'Enter your message';
-            document.querySelector('.submit-btn').textContent = 'Send Message';
+            // Footer contact section
+            document.querySelector('.footer-contact h3').textContent = 'Contact';
         }
         
         function translateToVietnamese() {
@@ -369,20 +337,18 @@
             document.querySelectorAll('.nav-links li a')[1].textContent = 'Giới thiệu';
             document.querySelectorAll('.nav-links li a')[2].textContent = 'Kỹ năng';
             document.querySelectorAll('.nav-links li a')[3].textContent = 'Dự án';
-            document.querySelectorAll('.nav-links li a')[4].textContent = 'Liên hệ';
             
             // Section headers
             document.querySelectorAll('.section-header h2')[0].textContent = 'Giới Thiệu';
             document.querySelectorAll('.section-header h2')[1].textContent = 'Kỹ Năng Chính';
             document.querySelectorAll('.section-header h2')[2].textContent = 'Dự Án';
-            document.querySelectorAll('.section-header h2')[3].textContent = 'Liên Hệ';
             
             // Profile section
             document.querySelector('.tagline').textContent = 'Lập trình viên Full Stack | AI Enthusiast';
             document.querySelector('.info-label').textContent = 'Học vấn:';
             document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính';
-            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Liên hệ ngay';
-            document.querySelectorAll('.cta-buttons a')[1].textContent = 'Xem dự án';
+            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Xem dự án';
+            document.querySelectorAll('.cta-buttons a')[1].textContent = 'Giới thiệu';
             document.querySelector('.scroll-down span').textContent = 'Cuộn xuống';
             
             // About section
@@ -401,14 +367,8 @@
             document.querySelector('.projects-container .project-card:nth-child(2) p').textContent = 'Trang web quản lý giáo dục sử dụng Flask, Vue.js và MySQL, tích hợp model phân loại đánh giá.';
             document.querySelector('.projects-container .project-card:nth-child(2) .project-link').innerHTML = 'Chi tiết <i class="fa-solid fa-arrow-right"></i>';
             
-            // Contact section
-            document.querySelector('label[for="name"]').textContent = 'Họ tên';
-            document.querySelector('input[id="name"]').placeholder = 'Nhập họ tên của bạn';
-            document.querySelector('label[for="email"]').textContent = 'Email';
-            document.querySelector('input[id="email"]').placeholder = 'Nhập email của bạn';
-            document.querySelector('label[for="message"]').textContent = 'Lời nhắn';
-            document.querySelector('textarea[id="message"]').placeholder = 'Nhập lời nhắn của bạn';
-            document.querySelector('.submit-btn').textContent = 'Gửi tin nhắn';
+            // Footer contact section
+            document.querySelector('.footer-contact h3').textContent = 'Liên Hệ';
         }
     </script>
 </body>
