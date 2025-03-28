@@ -26,6 +26,9 @@
                 <li><a href="#projects">Dự án</a></li>
                 <li><a href="#contact">Liên hệ</a></li>
             </ul>
+            <div class="language-switcher">
+                <button id="langToggle" class="lang-btn"><span class="current-lang">VI</span> | <span class="alt-lang">EN</span></button>
+            </div>
             <div class="hamburger">
                 <div class="bar"></div>
                 <div class="bar"></div>
@@ -133,7 +136,7 @@
                         <span class="tech-tag">Vue.js</span>
                         <span class="tech-tag">MySQL</span>
                     </div>
-                    <a href="#" class="project-link">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://github.com/noddenhoang/TechFinance" class="project-link" target="_blank">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
                 <div class="project-card">
                     <div class="project-icon">
@@ -146,7 +149,7 @@
                         <span class="tech-tag">Vue.js</span>
                         <span class="tech-tag">MySQL</span>
                     </div>
-                    <a href="#" class="project-link">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="https://github.com/voquangtri2708/Smart-edu" class="project-link" target="_blank">Chi tiết <i class="fa-solid fa-arrow-right"></i></a>
                 </div>
             </div>
         </section>
@@ -227,6 +230,21 @@
                 hamburger.classList.remove('active');
             });
         });
+        
+        // Apply the same smooth scrolling behavior to CTA buttons in the home section
+        document.querySelectorAll('.cta-buttons a').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetSection.offsetTop,
+                    behavior: 'smooth'
+                });
+            });
+        });
 
         // Navbar scroll effect
         window.addEventListener('scroll', function() {
@@ -278,6 +296,120 @@
                 }
             });
         });
+
+        // Language switcher functionality
+        const langToggle = document.getElementById('langToggle');
+        let currentLang = 'vi';
+        
+        langToggle.addEventListener('click', () => {
+            if (currentLang === 'vi') {
+                currentLang = 'en';
+                document.querySelector('.current-lang').textContent = 'EN';
+                document.querySelector('.alt-lang').textContent = 'VI';
+                translateToEnglish();
+            } else {
+                currentLang = 'vi';
+                document.querySelector('.current-lang').textContent = 'VI';
+                document.querySelector('.alt-lang').textContent = 'EN';
+                translateToVietnamese();
+            }
+        });
+        
+        function translateToEnglish() {
+            // Navigation links
+            document.querySelectorAll('.nav-links li a')[0].textContent = 'Home';
+            document.querySelectorAll('.nav-links li a')[1].textContent = 'About';
+            document.querySelectorAll('.nav-links li a')[2].textContent = 'Skills';
+            document.querySelectorAll('.nav-links li a')[3].textContent = 'Projects';
+            document.querySelectorAll('.nav-links li a')[4].textContent = 'Contact';
+            
+            // Section headers
+            document.querySelectorAll('.section-header h2')[0].textContent = 'About';
+            document.querySelectorAll('.section-header h2')[1].textContent = 'Main Skills';
+            document.querySelectorAll('.section-header h2')[2].textContent = 'Projects';
+            document.querySelectorAll('.section-header h2')[3].textContent = 'Contact';
+            
+            // Profile section
+            document.querySelector('.tagline').textContent = 'Full Stack Developer | AI Enthusiast';
+            document.querySelector('.info-label').textContent = 'Education:';
+            document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Education:</span> Bachelor of Computer Science';
+            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Contact Now';
+            document.querySelectorAll('.cta-buttons a')[1].textContent = 'View Projects';
+            document.querySelector('.scroll-down span').textContent = 'Scroll Down';
+            
+            // About section
+            document.querySelector('.about-card p').textContent = 'I am a technology-passionate programmer with experience in Spring Boot, Flask, Vue.js, and MySQL. I have a solid foundation in back-end and front-end development, and I am interested in applying AI to optimize processes and enhance user experience.';
+            
+            // Skills section
+            document.querySelector('.skills-grid .skill-category:nth-child(4) h3').textContent = 'AI & Machine Learning';
+            document.querySelector('.skills-grid .skill-category:nth-child(4) li').innerHTML = '<i class="fa-solid fa-check"></i> Research & Applications';
+            
+            // Projects section
+            document.querySelector('.projects-container .project-card:nth-child(1) h3').textContent = 'Financial Management System';
+            document.querySelector('.projects-container .project-card:nth-child(1) p').textContent = 'Built backend with Spring Boot and frontend with Vue.js, integrated with MySQL database.';
+            document.querySelector('.projects-container .project-card:nth-child(1) .project-link').innerHTML = 'Details <i class="fa-solid fa-arrow-right"></i>';
+            
+            document.querySelector('.projects-container .project-card:nth-child(2) h3').textContent = 'Education Management System';
+            document.querySelector('.projects-container .project-card:nth-child(2) p').textContent = 'Educational management website using Flask, Vue.js, and MySQL, with integrated assessment classification model.';
+            document.querySelector('.projects-container .project-card:nth-child(2) .project-link').innerHTML = 'Details <i class="fa-solid fa-arrow-right"></i>';
+            
+            // Contact section
+            document.querySelector('label[for="name"]').textContent = 'Full Name';
+            document.querySelector('input[id="name"]').placeholder = 'Enter your name';
+            document.querySelector('label[for="email"]').textContent = 'Email';
+            document.querySelector('input[id="email"]').placeholder = 'Enter your email';
+            document.querySelector('label[for="message"]').textContent = 'Message';
+            document.querySelector('textarea[id="message"]').placeholder = 'Enter your message';
+            document.querySelector('.submit-btn').textContent = 'Send Message';
+        }
+        
+        function translateToVietnamese() {
+            // Navigation links
+            document.querySelectorAll('.nav-links li a')[0].textContent = 'Trang chủ';
+            document.querySelectorAll('.nav-links li a')[1].textContent = 'Giới thiệu';
+            document.querySelectorAll('.nav-links li a')[2].textContent = 'Kỹ năng';
+            document.querySelectorAll('.nav-links li a')[3].textContent = 'Dự án';
+            document.querySelectorAll('.nav-links li a')[4].textContent = 'Liên hệ';
+            
+            // Section headers
+            document.querySelectorAll('.section-header h2')[0].textContent = 'Giới Thiệu';
+            document.querySelectorAll('.section-header h2')[1].textContent = 'Kỹ Năng Chính';
+            document.querySelectorAll('.section-header h2')[2].textContent = 'Dự Án';
+            document.querySelectorAll('.section-header h2')[3].textContent = 'Liên Hệ';
+            
+            // Profile section
+            document.querySelector('.tagline').textContent = 'Lập trình viên Full Stack | AI Enthusiast';
+            document.querySelector('.info-label').textContent = 'Học vấn:';
+            document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính';
+            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Liên hệ ngay';
+            document.querySelectorAll('.cta-buttons a')[1].textContent = 'Xem dự án';
+            document.querySelector('.scroll-down span').textContent = 'Cuộn xuống';
+            
+            // About section
+            document.querySelector('.about-card p').textContent = 'Tôi là một lập trình viên đam mê công nghệ với kinh nghiệm làm việc trên Spring Boot, Flask, Vue.js và MySQL. Tôi có nền tảng vững chắc về phát triển back-end và front-end, đồng thời quan tâm đến việc ứng dụng AI vào thực tế để tối ưu hóa quy trình và nâng cao trải nghiệm người dùng.';
+            
+            // Skills section
+            document.querySelector('.skills-grid .skill-category:nth-child(4) h3').textContent = 'AI & Machine Learning';
+            document.querySelector('.skills-grid .skill-category:nth-child(4) li').innerHTML = '<i class="fa-solid fa-check"></i> Nghiên cứu & Ứng dụng';
+            
+            // Projects section
+            document.querySelector('.projects-container .project-card:nth-child(1) h3').textContent = 'Hệ thống Quản lý Thu chi';
+            document.querySelector('.projects-container .project-card:nth-child(1) p').textContent = 'Xây dựng backend với Spring Boot và frontend với Vue.js, tích hợp cơ sở dữ liệu MySQL.';
+            document.querySelector('.projects-container .project-card:nth-child(1) .project-link').innerHTML = 'Chi tiết <i class="fa-solid fa-arrow-right"></i>';
+            
+            document.querySelector('.projects-container .project-card:nth-child(2) h3').textContent = 'Hệ thống Quản lý Giáo dục';
+            document.querySelector('.projects-container .project-card:nth-child(2) p').textContent = 'Trang web quản lý giáo dục sử dụng Flask, Vue.js và MySQL, tích hợp model phân loại đánh giá.';
+            document.querySelector('.projects-container .project-card:nth-child(2) .project-link').innerHTML = 'Chi tiết <i class="fa-solid fa-arrow-right"></i>';
+            
+            // Contact section
+            document.querySelector('label[for="name"]').textContent = 'Họ tên';
+            document.querySelector('input[id="name"]').placeholder = 'Nhập họ tên của bạn';
+            document.querySelector('label[for="email"]').textContent = 'Email';
+            document.querySelector('input[id="email"]').placeholder = 'Nhập email của bạn';
+            document.querySelector('label[for="message"]').textContent = 'Lời nhắn';
+            document.querySelector('textarea[id="message"]').placeholder = 'Nhập lời nhắn của bạn';
+            document.querySelector('.submit-btn').textContent = 'Gửi tin nhắn';
+        }
     </script>
 </body>
 </html> 

@@ -118,6 +118,38 @@ body {
     color: var(--primary-color);
 }
 
+/* Language switcher styles */
+.language-switcher {
+    margin-left: 1rem;
+}
+
+.lang-btn {
+    background: rgba(58, 134, 255, 0.2);
+    border: 1px solid rgba(58, 134, 255, 0.3);
+    color: var(--text-color);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    backdrop-filter: blur(5px);
+}
+
+.lang-btn:hover {
+    background: rgba(58, 134, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.current-lang {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.alt-lang {
+    opacity: 0.7;
+}
+
 .hamburger {
     display: none;
     cursor: pointer;
@@ -709,12 +741,17 @@ p {
 
 @media (max-width: 768px) {
     .navbar-container {
-        padding: 0 2rem;
+        padding: 0 1rem;
+    }
+    
+    .language-switcher {
+        order: 2;
+        margin-right: 1rem;
     }
     
     .hamburger {
         display: block;
-        z-index: 101;
+        order: 3;
     }
     
     .hamburger.active .bar:nth-child(2) {
