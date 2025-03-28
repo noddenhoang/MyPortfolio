@@ -19,7 +19,6 @@ const earthMapURL = 'https://threejs.org/examples/textures/planets/earth_atmos_2
 const earthBumpMapURL = 'https://threejs.org/examples/textures/planets/earth_normal_2048.jpg';
 const earthSpecularMapURL = 'https://threejs.org/examples/textures/planets/earth_specular_2048.jpg';
 const cloudsMapURL = 'https://threejs.org/examples/textures/planets/earth_clouds_1024.png';
-const nightMapURL = 'https://threejs.org/examples/textures/planets/earth_lights_2048.jpg';
 
 // Load textures
 const textureLoader = new THREE.TextureLoader();
@@ -27,7 +26,6 @@ const earthMap = textureLoader.load(earthMapURL);
 const earthBumpMap = textureLoader.load(earthBumpMapURL);
 const earthSpecularMap = textureLoader.load(earthSpecularMapURL);
 const cloudsMap = textureLoader.load(cloudsMapURL);
-const nightMap = textureLoader.load(nightMapURL);
 
 // Earth material with day/night effect
 const earthMaterial = new THREE.MeshPhongMaterial({
@@ -39,13 +37,9 @@ const earthMaterial = new THREE.MeshPhongMaterial({
     shininess: 15
 });
 
-// Add night lights texture as an extension to the material
-earthMaterial.userData = { nightMap };
-
 // Custom shader material to handle day/night transition
 const customUniforms = {
     dayTexture: { value: earthMap },
-    nightTexture: { value: nightMap },
     bumpTexture: { value: earthBumpMap },
     bumpScale: { value: 0.05 },
     lightPosition: { value: new THREE.Vector3(5, 3, 5) },
@@ -68,7 +62,6 @@ const earthShaderMaterial = new THREE.ShaderMaterial({
     `,
     fragmentShader: `
         uniform sampler2D dayTexture;
-        uniform sampler2D nightTexture;
         uniform sampler2D bumpTexture;
         uniform float bumpScale;
         uniform vec3 lightPosition;
@@ -77,11 +70,6 @@ const earthShaderMaterial = new THREE.ShaderMaterial({
         varying vec2 vUv;
         varying vec3 vNormal;
         varying vec3 vPosition;
-        
-        // Helper function for light glowing effect
-        float glow(float d, float str, float thickness) {
-            return pow(thickness / d, str);
-        }
         
         void main() {
             vec3 lightDir = normalize(lightPosition);
@@ -94,40 +82,14 @@ const earthShaderMaterial = new THREE.ShaderMaterial({
             float transition = 0.08; // Even sharper edge
             dayNightMix = smoothstep(-transition, transition, dayNightMix);
             
-            // Sample day and night textures
+            // Sample day texture
             vec4 dayColor = texture2D(dayTexture, vUv);
-            vec4 nightColor = texture2D(nightTexture, vUv);
             
             // Make night side genuinely dark
             vec3 darkSide = vec3(0.02, 0.02, 0.05); // Very dark blue/black
             
-            // Enhance night lights
-            float lightIntensity = length(nightColor.rgb);
-            
-            // Make the lights more intense with a stronger glow
-            float enhancedLightIntensity = pow(lightIntensity, 0.5) * 3.5;
-            vec3 enhancedLights = nightColor.rgb * enhancedLightIntensity;
-            
-            // Add color variation to city lights (more yellow/orange)
-            enhancedLights *= vec3(1.2, 1.0, 0.7);
-            
-            // Add light flickering with variation based on position
-            float flicker1 = sin(time * 8.0 + vUv.x * 30.0) * 0.5 + 0.5;
-            float flicker2 = cos(time * 7.5 + vUv.y * 25.0) * 0.5 + 0.5;
-            float flicker = (flicker1 + flicker2) * 0.5;
-            flicker = mix(0.92, 1.08, flicker);
-            enhancedLights *= flicker;
-            
-            // Add light glow/bloom effect
-            float distFromLight = 1.0 - lightIntensity;
-            float glow = 1.0 + glow(distFromLight + 0.5, 0.5, 0.5) * lightIntensity * 2.0;
-            enhancedLights *= glow;
-            
-            // Create night side with city lights
-            vec3 nightSideWithLights = darkSide + enhancedLights;
-            
-            // Blend between night side (with lights) and day side
-            vec4 finalColor = mix(vec4(nightSideWithLights, 1.0), dayColor, dayNightMix);
+            // Blend between night side and day side
+            vec4 finalColor = mix(vec4(darkSide, 1.0), dayColor, dayNightMix);
             
             // Add atmospheric effect at edges (simple Fresnel)
             vec3 viewDir = normalize(-vPosition);
@@ -224,6 +186,11 @@ let zoomStartTime = 0;
 let zoomDuration = 1000; // 1 second for zoom animation
 let zoomEasing = true;
 
+// Add constants for camera constraints
+const MIN_CAMERA_DISTANCE = 1.5;
+const MAX_CAMERA_DISTANCE = 3.0;
+const DEFAULT_CAMERA_DISTANCE = 2.5;
+
 // Setup raycaster for detecting clicks on the globe
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -252,7 +219,7 @@ document.addEventListener('mousedown', (event) => {
             // Store a normalized vector pointing from center to intersection
             zoomTarget.copy(point).normalize();
             // Set target position for camera (closer to the globe in the direction of clicked point)
-            targetCameraPosition.copy(zoomTarget).multiplyScalar(1.5);
+            targetCameraPosition.copy(zoomTarget).multiplyScalar(MIN_CAMERA_DISTANCE);
             
             // Calculate rotation to look at the point
             targetQuaternion.setFromUnitVectors(
@@ -327,20 +294,25 @@ function animate() {
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
     
-    // Handle different animation modes based on zooming state
     if (isZooming) {
         // Use quaternion for smooth rotation when zoomed in
         const zoomProgress = Math.min((currentTime - zoomStartTime) / zoomDuration, 1.0);
         let t = zoomProgress;
         
-        // Apply easing function for smoother animation
         if (zoomEasing) {
-            // Cubic easing
             t = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
         }
         
-        // Smoothly interpolate camera position
+        // Smoothly interpolate camera position with distance constraints
         camera.position.lerp(targetCameraPosition, 0.05);
+        
+        // Ensure camera doesn't get too close or too far
+        const distance = camera.position.length();
+        if (distance < MIN_CAMERA_DISTANCE) {
+            camera.position.normalize().multiplyScalar(MIN_CAMERA_DISTANCE);
+        } else if (distance > MAX_CAMERA_DISTANCE) {
+            camera.position.normalize().multiplyScalar(MAX_CAMERA_DISTANCE);
+        }
         
         // Smoothly rotate to look at the target point
         earth.quaternion.slerp(targetQuaternion, 0.05);
@@ -362,9 +334,17 @@ function animate() {
         atmosphere.rotation.y = currentRotationY;
         atmosphere.rotation.x = currentRotationX;
         
-        // If we're zooming out, smoothly move camera back
+        // If we're zooming out, smoothly move camera back with constraints
         if (camera.position.distanceTo(initialCameraPosition) > 0.01) {
             camera.position.lerp(initialCameraPosition, 0.05);
+            
+            // Ensure camera stays within bounds while returning
+            const distance = camera.position.length();
+            if (distance < MIN_CAMERA_DISTANCE) {
+                camera.position.normalize().multiplyScalar(MIN_CAMERA_DISTANCE);
+            } else if (distance > MAX_CAMERA_DISTANCE) {
+                camera.position.normalize().multiplyScalar(MAX_CAMERA_DISTANCE);
+            }
         }
     }
     
@@ -392,8 +372,8 @@ function zoomToDaNang() {
     // Set the target position vector
     zoomTarget.set(x, y, z);
     
-    // Set up the camera target position
-    targetCameraPosition.copy(zoomTarget).multiplyScalar(1.5);
+    // Set up the camera target position with constrained distance
+    targetCameraPosition.copy(zoomTarget).multiplyScalar(MIN_CAMERA_DISTANCE);
     
     // Calculate rotation to look at Đà Nẵng
     targetQuaternion.setFromUnitVectors(
