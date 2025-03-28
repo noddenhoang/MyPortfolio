@@ -229,49 +229,50 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 document.addEventListener('mousedown', (event) => {
+    // Set mouse position for raycaster
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(earth);
+    
     if (event.button === 0) { // Left click
-        // Check if we're clicking on the globe
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-        
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(earth);
-        
-        if (intersects.length > 0) {
-            // If we're already zoomed in, reset to original position
-            if (isZooming) {
-                isZooming = false;
-                targetCameraPosition.copy(initialCameraPosition);
-                // Reset to standard rotation logic when zooming out
-                earth.quaternion.identity();
-                clouds.quaternion.identity();
-                atmosphere.quaternion.identity();
-            } else {
-                // Otherwise zoom in to the clicked point
-                isZooming = true;
-                // Get the point of intersection
-                const point = intersects[0].point;
-                // Store a normalized vector pointing from center to intersection
-                zoomTarget.copy(point).normalize();
-                // Set target position for camera (closer to the globe in the direction of clicked point)
-                targetCameraPosition.copy(zoomTarget).multiplyScalar(1.5);
-                
-                // Calculate rotation to look at the point
-                targetQuaternion.setFromUnitVectors(
-                    new THREE.Vector3(0, 0, 1), 
-                    zoomTarget
-                );
-                
-                // Reset animation timer
-                zoomStartTime = Date.now();
-            }
-        }
-        
+        // Start dragging regardless of zoom state
         isDragging = true;
         previousMousePosition = {
             x: event.clientX,
             y: event.clientY
         };
+        
+        // If not zoomed and clicking on the globe, zoom in
+        if (!isZooming && intersects.length > 0) {
+            isZooming = true;
+            // Get the point of intersection
+            const point = intersects[0].point;
+            // Store a normalized vector pointing from center to intersection
+            zoomTarget.copy(point).normalize();
+            // Set target position for camera (closer to the globe in the direction of clicked point)
+            targetCameraPosition.copy(zoomTarget).multiplyScalar(1.5);
+            
+            // Calculate rotation to look at the point
+            targetQuaternion.setFromUnitVectors(
+                new THREE.Vector3(0, 0, 1), 
+                zoomTarget
+            );
+            
+            // Reset animation timer
+            zoomStartTime = Date.now();
+        }
+    } else if (event.button === 2) { // Right click
+        // Reset to original position
+        if (isZooming) {
+            isZooming = false;
+            targetCameraPosition.copy(initialCameraPosition);
+            // Reset to standard rotation logic when zooming out
+            earth.quaternion.identity();
+            clouds.quaternion.identity();
+            atmosphere.quaternion.identity();
+        }
     }
 });
 
@@ -282,8 +283,25 @@ document.addEventListener('mousemove', (event) => {
             y: event.clientY - previousMousePosition.y
         };
         
-        targetRotationY += deltaMove.x * 0.003;
-        targetRotationX -= deltaMove.y * 0.003;
+        if (isZooming) {
+            // When zoomed in, rotate around the point using quaternions
+            const rotationSpeed = 0.003;
+            const rotationX = new THREE.Quaternion().setFromAxisAngle(
+                new THREE.Vector3(0, 1, 0), 
+                deltaMove.x * rotationSpeed
+            );
+            const rotationY = new THREE.Quaternion().setFromAxisAngle(
+                new THREE.Vector3(1, 0, 0), 
+                -deltaMove.y * rotationSpeed
+            );
+            
+            // Apply rotations to target quaternion
+            targetQuaternion.premultiply(rotationX).premultiply(rotationY);
+        } else {
+            // When not zoomed, use the regular rotation
+            targetRotationY += deltaMove.x * 0.003;
+            targetRotationX -= deltaMove.y * 0.003;
+        }
         
         previousMousePosition = {
             x: event.clientX,
@@ -294,6 +312,11 @@ document.addEventListener('mousemove', (event) => {
 
 document.addEventListener('mouseup', () => {
     isDragging = false;
+});
+
+// Prevent context menu on right-click
+document.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
 });
 
 // Animation loop
@@ -353,4 +376,32 @@ function animate() {
 }
 
 // Initialize animation
-animate(); 
+animate();
+
+// Function to zoom to Đà Nẵng when the location button is clicked
+function zoomToDaNang() {
+    // Coordinates for Đà Nẵng, Vietnam (lat: 16.0544, lng: 108.2022)
+    const latitude = 16.0544 * (Math.PI / 180); // Convert to radians
+    const longitude = 108.2022 * (Math.PI / 180); // Convert to radians
+    
+    // Calculate the 3D position on the sphere
+    const x = Math.cos(latitude) * Math.sin(longitude);
+    const y = Math.sin(latitude);
+    const z = Math.cos(latitude) * Math.cos(longitude);
+    
+    // Set the target position vector
+    zoomTarget.set(x, y, z);
+    
+    // Set up the camera target position
+    targetCameraPosition.copy(zoomTarget).multiplyScalar(1.5);
+    
+    // Calculate rotation to look at Đà Nẵng
+    targetQuaternion.setFromUnitVectors(
+        new THREE.Vector3(0, 0, 1), 
+        zoomTarget
+    );
+    
+    // Start zooming
+    isZooming = true;
+    zoomStartTime = Date.now();
+} 
