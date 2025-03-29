@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 // Create a Three.js scene
 const scene = new THREE.Scene();
@@ -224,6 +226,134 @@ Promise.all([
     });
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
+
+    // Create 3D Text "Thai Hoang Bao" that rotates around the Earth
+    let text3D;
+    const fontLoader = new FontLoader();
+    const textParams = {
+        size: 0.15,
+        height: 0.03,
+        curveSegments: 12,
+        bevelEnabled: true,
+        bevelThickness: 0.01,
+        bevelSize: 0.005,
+        bevelOffset: 0,
+        bevelSegments: 5
+    };
+    
+    // Load font and create 3D text
+    fontLoader.load(
+        'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
+        (font) => {
+            // Create text geometries for different words
+            const textGeometry1 = new TextGeometry('Thai', {
+                font: font,
+                size: textParams.size,
+                height: textParams.height,
+                curveSegments: textParams.curveSegments,
+                bevelEnabled: textParams.bevelEnabled,
+                bevelThickness: textParams.bevelThickness,
+                bevelSize: textParams.bevelSize,
+                bevelOffset: textParams.bevelOffset,
+                bevelSegments: textParams.bevelSegments
+            });
+            textGeometry1.center();
+            
+            const textGeometry2 = new TextGeometry('Hoang', {
+                font: font,
+                size: textParams.size,
+                height: textParams.height,
+                curveSegments: textParams.curveSegments,
+                bevelEnabled: textParams.bevelEnabled,
+                bevelThickness: textParams.bevelThickness,
+                bevelSize: textParams.bevelSize,
+                bevelOffset: textParams.bevelOffset,
+                bevelSegments: textParams.bevelSegments
+            });
+            textGeometry2.center();
+            
+            const textGeometry3 = new TextGeometry('Bao', {
+                font: font,
+                size: textParams.size,
+                height: textParams.height,
+                curveSegments: textParams.curveSegments,
+                bevelEnabled: textParams.bevelEnabled,
+                bevelThickness: textParams.bevelThickness,
+                bevelSize: textParams.bevelSize,
+                bevelOffset: textParams.bevelOffset,
+                bevelSegments: textParams.bevelSegments
+            });
+            textGeometry3.center();
+            
+            // Create materials for the text
+            const textMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x3a86ff,
+                specular: 0xffffff,
+                shininess: 100,
+                emissive: 0x3a86ff,
+                emissiveIntensity: 0.3
+            });
+            
+            // Add glow effect to the text
+            const addGlowToText = (textMesh) => {
+                // Create a slightly larger clone with a glow material
+                const glowGeometry = textMesh.geometry.clone();
+                const glowMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x3a86ff,
+                    transparent: true,
+                    opacity: 0.5,
+                    side: THREE.BackSide
+                });
+                
+                // Create the glow mesh slightly larger than the text
+                const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
+                glowMesh.scale.multiplyScalar(1.1);
+                
+                // Add the glow as a child of the text mesh
+                textMesh.add(glowMesh);
+                
+                return textMesh;
+            };
+            
+            // Create text meshes and position them around Earth's orbit
+            const text1 = addGlowToText(new THREE.Mesh(textGeometry1, textMaterial));
+            const text2 = addGlowToText(new THREE.Mesh(textGeometry2, textMaterial));
+            const text3 = addGlowToText(new THREE.Mesh(textGeometry3, textMaterial));
+            
+            // Add text meshes to the group
+            text3D = new THREE.Group();
+            text3D.add(text1);
+            text3D.add(text2);
+            text3D.add(text3);
+            
+            // Position the text meshes at different angles around the orbit
+            const orbitRadius = 2;
+            
+            text1.position.set(
+                Math.sin(0) * orbitRadius,
+                0.5,
+                Math.cos(0) * orbitRadius
+            );
+            text1.lookAt(0, 0, 0);
+            
+            text2.position.set(
+                Math.sin(2 * Math.PI / 3) * orbitRadius,
+                0.2,
+                Math.cos(2 * Math.PI / 3) * orbitRadius
+            );
+            text2.lookAt(0, 0, 0);
+            
+            text3.position.set(
+                Math.sin(4 * Math.PI / 3) * orbitRadius,
+                -0.3,
+                Math.cos(4 * Math.PI / 3) * orbitRadius
+            );
+            text3.lookAt(0, 0, 0);
+            
+            // Add the text group to the scene
+            scene.add(text3D);
+        }
+    );
 
     // Variables for rotation
     let targetRotationY = 0;
@@ -560,6 +690,42 @@ Promise.all([
             clouds.rotation.x = currentRotationX;
             atmosphere.rotation.y = currentRotationY;
             atmosphere.rotation.x = currentRotationX;
+            
+            // Rotate 3D text around the Earth
+            if (text3D) {
+                // Orbit the text around the Earth
+                const textOrbitSpeed = 0.0005 * deltaTime;
+                text3D.rotation.y += textOrbitSpeed;
+                
+                // Create pulsing animation for the text
+                const pulseAmount = 0.05;
+                const pulseSpeed = 0.003;
+                const pulseValue = Math.sin(currentTime * pulseSpeed) * pulseAmount + 1;
+                
+                // Apply pulsing effect to each text mesh
+                text3D.children.forEach((textMesh, index) => {
+                    // Make each text mesh always face the camera
+                    textMesh.lookAt(camera.position);
+                    
+                    // Apply pulsing to emissive intensity
+                    if (textMesh.material && textMesh.material.emissiveIntensity !== undefined) {
+                        textMesh.material.emissiveIntensity = 0.3 + Math.sin(currentTime * 0.002 + index) * 0.2;
+                        textMesh.material.needsUpdate = true;
+                    }
+                    
+                    // Apply subtle scaling animation
+                    textMesh.scale.set(pulseValue, pulseValue, pulseValue);
+                    
+                    // Animate glow opacity
+                    if (textMesh.children.length > 0) {
+                        const glowMesh = textMesh.children[0];
+                        if (glowMesh.material) {
+                            glowMesh.material.opacity = 0.3 + Math.sin(currentTime * 0.003 + index * 0.5) * 0.2;
+                            glowMesh.material.needsUpdate = true;
+                        }
+                    }
+                });
+            }
             
             // If we're zooming out, smoothly move camera back with constraints
             if (camera.position.distanceTo(initialCameraPosition) > 0.01) {
