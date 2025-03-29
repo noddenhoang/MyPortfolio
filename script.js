@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 // Create a Three.js scene
 const scene = new THREE.Scene();
 
@@ -153,6 +155,15 @@ let lastTime = Date.now();
 let targetQuaternion = new THREE.Quaternion();
 let currentQuaternion = new THREE.Quaternion();
 
+// Auto-rotation variables
+let isAutoRotating = true;
+let autoRotationSpeed = 0.00005; // Base rotation speed when idle
+let scrollBoostSpeed = 0.00015; // Speed boost when scrolling
+let scrollRotationBoost = 0; // Additional rotation from scrolling
+let scrollBoostDecay = 0.95; // How quickly scroll boost fades
+let lastInteractionTime = Date.now();
+const AUTO_ROTATION_DELAY = 3000; // Wait 3 seconds after last interaction to start auto-rotation again
+
 // Handle window resize
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
@@ -161,17 +172,24 @@ window.addEventListener('resize', () => {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+// Function to temporarily disable auto-rotation when user interacts
+function disableAutoRotation() {
+    lastInteractionTime = Date.now();
+}
+
 // Handle scroll for rotation
 window.addEventListener('scroll', () => {
     const scrollDiff = window.scrollY - lastScrollY;
-    targetRotationY += scrollDiff * 0.002;
+    scrollRotationBoost += scrollDiff * scrollBoostSpeed;
     lastScrollY = window.scrollY;
+    disableAutoRotation();
 });
 
 // Handle mouse wheel for additional rotation
 window.addEventListener('wheel', (event) => {
     targetRotationY += event.deltaY * 0.0005;
     targetRotationX += event.deltaX * 0.0005;
+    disableAutoRotation();
 });
 
 // Handle mouse drag interaction
@@ -199,6 +217,8 @@ document.addEventListener('mousedown', (event) => {
     // Set mouse position for raycaster
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    
+    disableAutoRotation();
     
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObject(earth);
@@ -294,6 +314,11 @@ function animate() {
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
     
+    // Check if we should resume auto-rotation
+    if (!isAutoRotating && currentTime - lastInteractionTime > AUTO_ROTATION_DELAY && !isZooming && !isDragging) {
+        isAutoRotating = true;
+    }
+    
     if (isZooming) {
         // Use quaternion for smooth rotation when zoomed in
         const zoomProgress = Math.min((currentTime - zoomStartTime) / zoomDuration, 1.0);
@@ -319,6 +344,16 @@ function animate() {
         clouds.quaternion.copy(earth.quaternion);
         atmosphere.quaternion.copy(earth.quaternion);
     } else {
+        // Always apply base auto-rotation
+        targetRotationY += autoRotationSpeed * deltaTime;
+        
+        // Apply and decay scroll boost
+        targetRotationY += scrollRotationBoost;
+        scrollRotationBoost *= scrollBoostDecay;
+        if (Math.abs(scrollRotationBoost) < 0.0001) {
+            scrollRotationBoost = 0;
+        }
+        
         // Update rotations with smooth easing when not zoomed
         currentRotationY += (targetRotationY - currentRotationY) * 0.1;
         currentRotationX += (targetRotationX - currentRotationX) * 0.1;
