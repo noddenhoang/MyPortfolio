@@ -8,6 +8,12 @@
     user-select: none;
 }
 
+html, body {
+    touch-action: pan-y;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+}
+
 :root {
     --primary-color: #3a86ff;
     --primary-color-dark: #2563eb;
