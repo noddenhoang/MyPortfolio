@@ -1,6 +1,27 @@
 import * as THREE from 'three';
 import { FontLoader } from 'three/addons/loaders/FontLoader.js';
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Biến tạm dùng cho tính toán nametag
+const tempVector = new THREE.Vector3();
+const tempVector2 = new THREE.Vector3();
+const tempQuaternion = new THREE.Quaternion();
+const tempColor = new THREE.Color();
+
+// Biến toàn cục khác
+let Earth, astronaut, astronauts;
+let controls;
+let loadingManager, textureLoader, fontLoader;
+let nametagCanvas, nametagTexture;
+let earthShaderMaterial;
+
+// Dimensions
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+};
 
 // Create a Three.js scene
 const scene = new THREE.Scene();
@@ -33,6 +54,12 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.getElementById('earth-container').appendChild(renderer.domElement);
+
+// Khởi tạo controls
+controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.dampingFactor = 0.05;
+controls.enablePan = false;
 
 // Create Earth
 const earthGeometry = new THREE.SphereGeometry(1, 64, 64);
@@ -227,133 +254,246 @@ Promise.all([
     const atmosphere = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     scene.add(atmosphere);
 
-    // Create 3D Text "Thai Hoang Bao" that rotates around the Earth
-    let text3D;
+    // Create Among Us astronaut model with nametag instead of 3D text
+    let astronauts;
+    const gltfLoader = new GLTFLoader();
     const fontLoader = new FontLoader();
-    const textParams = {
-        size: 0.15,
-        height: 0.03,
-        curveSegments: 12,
-        bevelEnabled: true,
-        bevelThickness: 0.01,
-        bevelSize: 0.005,
-        bevelOffset: 0,
-        bevelSegments: 5
-    };
     
-    // Load font and create 3D text
-    fontLoader.load(
-        'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json', 
-        (font) => {
-            // Create text geometries for different words
-            const textGeometry1 = new TextGeometry('Thai', {
-                font: font,
-                size: textParams.size,
-                height: textParams.height,
-                curveSegments: textParams.curveSegments,
-                bevelEnabled: textParams.bevelEnabled,
-                bevelThickness: textParams.bevelThickness,
-                bevelSize: textParams.bevelSize,
-                bevelOffset: textParams.bevelOffset,
-                bevelSegments: textParams.bevelSegments
-            });
-            textGeometry1.center();
+    // Load Among Us model
+    gltfLoader.load(
+        'assets/textures/among_us_blue.glb',
+        (gltf) => {
+            // Create a group to hold astronaut
+            astronauts = new THREE.Group();
             
-            const textGeometry2 = new TextGeometry('Hoang', {
-                font: font,
-                size: textParams.size,
-                height: textParams.height,
-                curveSegments: textParams.curveSegments,
-                bevelEnabled: textParams.bevelEnabled,
-                bevelThickness: textParams.bevelThickness,
-                bevelSize: textParams.bevelSize,
-                bevelOffset: textParams.bevelOffset,
-                bevelSegments: textParams.bevelSegments
-            });
-            textGeometry2.center();
-            
-            const textGeometry3 = new TextGeometry('Bao', {
-                font: font,
-                size: textParams.size,
-                height: textParams.height,
-                curveSegments: textParams.curveSegments,
-                bevelEnabled: textParams.bevelEnabled,
-                bevelThickness: textParams.bevelThickness,
-                bevelSize: textParams.bevelSize,
-                bevelOffset: textParams.bevelOffset,
-                bevelSegments: textParams.bevelSegments
-            });
-            textGeometry3.center();
-            
-            // Create materials for the text
-            const textMaterial = new THREE.MeshPhongMaterial({ 
-                color: 0x3a86ff,
-                specular: 0xffffff,
-                shininess: 100,
-                emissive: 0x3a86ff,
-                emissiveIntensity: 0.3
-            });
-            
-            // Add glow effect to the text
-            const addGlowToText = (textMesh) => {
-                // Create a slightly larger clone with a glow material
-                const glowGeometry = textMesh.geometry.clone();
-                const glowMaterial = new THREE.MeshBasicMaterial({
-                    color: 0x3a86ff,
-                    transparent: true,
-                    opacity: 0.5,
-                    side: THREE.BackSide
-                });
-                
-                // Create the glow mesh slightly larger than the text
-                const glowMesh = new THREE.Mesh(glowGeometry, glowMaterial);
-                glowMesh.scale.multiplyScalar(1.1);
-                
-                // Add the glow as a child of the text mesh
-                textMesh.add(glowMesh);
-                
-                return textMesh;
-            };
-            
-            // Create text meshes and position them around Earth's orbit
-            const text1 = addGlowToText(new THREE.Mesh(textGeometry1, textMaterial));
-            const text2 = addGlowToText(new THREE.Mesh(textGeometry2, textMaterial));
-            const text3 = addGlowToText(new THREE.Mesh(textGeometry3, textMaterial));
-            
-            // Add text meshes to the group
-            text3D = new THREE.Group();
-            text3D.add(text1);
-            text3D.add(text2);
-            text3D.add(text3);
-            
-            // Position the text meshes at different angles around the orbit
+            // Create a single astronaut to orbit the Earth
             const orbitRadius = 2;
             
-            text1.position.set(
+            // Clone the model
+            const model = gltf.scene.clone();
+            
+            // Scale model down to appropriate size (50% smaller than before)
+            model.scale.set(0.1, 0.1, 0.1);
+            
+            // Position around orbit
+            model.position.set(
                 Math.sin(0) * orbitRadius,
-                0.5,
+                0.3,
                 Math.cos(0) * orbitRadius
             );
-            text1.lookAt(0, 0, 0);
             
-            text2.position.set(
-                Math.sin(2 * Math.PI / 3) * orbitRadius,
-                0.2,
-                Math.cos(2 * Math.PI / 3) * orbitRadius
-            );
-            text2.lookAt(0, 0, 0);
+            // Make astronaut look at Earth center
+            model.lookAt(0, 0, 0);
             
-            text3.position.set(
-                Math.sin(4 * Math.PI / 3) * orbitRadius,
-                -0.3,
-                Math.cos(4 * Math.PI / 3) * orbitRadius
-            );
-            text3.lookAt(0, 0, 0);
+            // Add emissive material to make Among Us glow like a space suit
+            model.traverse((child) => {
+                if (child.isMesh && child.material) {
+                    // Clone the material to avoid affecting other instances
+                    if (Array.isArray(child.material)) {
+                        child.material = child.material.map(mat => {
+                            const newMat = mat.clone();
+                            newMat.emissive = new THREE.Color(0x3a86ff);
+                            newMat.emissiveIntensity = 0.3;
+                            return newMat;
+                        });
+                    } else {
+                        const newMat = child.material.clone();
+                        newMat.emissive = new THREE.Color(0x3a86ff);
+                        newMat.emissiveIntensity = 0.3;
+                        child.material = newMat;
+                    }
+                }
+            });
             
-            // Add the text group to the scene
-            scene.add(text3D);
+            // Add an atmospheric glow effect
+            const glowGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x3a86ff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            model.add(glow);
+            
+            // Store reference to glow for animation
+            model.userData.glow = glow;
+            
+            // Add model to group
+            astronauts.add(model);
+            
+            // Add nametag above astronaut
+            createNametag(model);
+            
+            // Add small particle effects for jet propulsion
+            addJetParticles(model);
+            
+            // Add astronauts group to scene
+            scene.add(astronauts);
+        },
+        // Progress callback
+        (xhr) => {
+            console.log(`Among Us model ${(xhr.loaded / xhr.total) * 100}% loaded`);
+        },
+        // Error callback
+        (error) => {
+            console.error('Error loading Among Us model:', error);
         }
     );
+    
+    // Function to create nametag above astronaut
+    function createNametag(astronautModel) {
+        console.log("Starting to create nametag...");
+        
+        // Tạo một nhóm chứa nametag - nhóm này sẽ được quản lý độc lập với model
+        const nametagHolder = new THREE.Object3D();
+        nametagHolder.position.y = 1; // Vị trí cao hơn đầu model
+        astronautModel.add(nametagHolder);
+        
+        // Lưu tham chiếu đến holder để cập nhật vị trí trong animation loop
+        astronautModel.userData.nametagHolder = nametagHolder;
+        
+        fontLoader.load(
+            'https://threejs.org/examples/fonts/helvetiker_bold.typeface.json',
+            (font) => {
+                console.log("Font loaded successfully");
+                
+                const textGeometry = new TextGeometry('ThaiHoangBao', {
+                    font: font,
+                    size: 0.12,  
+                    height: 0.02, 
+                    curveSegments: 12,
+                    bevelEnabled: true,
+                    bevelThickness: 0.004,
+                    bevelSize: 0.002,
+                    bevelOffset: 0,
+                    bevelSegments: 5
+                });
+                textGeometry.center();
+                
+                // Create material for nametag with stronger emissive effect
+                const textMaterial = new THREE.MeshPhongMaterial({ 
+                    color: 0xffffff,
+                    emissive: 0x8B0000, // Màu đỏ
+                    emissiveIntensity: 1.0, // Độ sáng tối đa
+                    shininess: 100
+                });
+                
+                // Create text mesh
+                const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+                
+                // Thêm outline màu đen để text dễ đọc
+                const outlineGeometry = textGeometry.clone();
+                const outlineMaterial = new THREE.MeshBasicMaterial({
+                    color: 0x000000,
+                    side: THREE.BackSide
+                });
+                const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+                outlineMesh.scale.multiplyScalar(1.1); // Viền dày
+                textMesh.add(outlineMesh);
+                
+                // Add a pointlight to make the nametag glow
+                const nameLight = new THREE.PointLight(0xff0000, 1.5, 1.0);
+                nameLight.position.set(0, 0.1, 0);
+                textMesh.add(nameLight);
+                
+                // Add text to the holder (không phải trực tiếp vào model)
+                nametagHolder.add(textMesh);
+                
+                // Store references for animation
+                astronautModel.userData.nametagMesh = textMesh;
+                astronautModel.userData.nametagLight = nameLight;
+                
+                console.log("Nametag created successfully and added to model");
+            },
+            // Progress callback
+            (xhr) => {
+                console.log(`Font loading: ${(xhr.loaded / xhr.total) * 100}% loaded`);
+            },
+            // Error callback
+            (error) => {
+                console.error('Error loading font for nametag:', error);
+                
+                // Fallback to create a simple nametag without font
+                createSimpleNametag(astronautModel, nametagHolder);
+            }
+        );
+    }
+    
+    // Create a simple nametag without fancy font as fallback
+    function createSimpleNametag(astronautModel, nametagHolder) {
+        console.log("Creating simple fallback nametag");
+        
+        // Create a canvas to draw text
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 64;
+        const context = canvas.getContext('2d');
+        
+        // Draw text on canvas
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, canvas.width, canvas.height);
+        context.font = 'bold 36px Arial';
+        context.fillStyle = 'red';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('ThaiHoangBao', canvas.width / 2, canvas.height / 2);
+        
+        // Create a texture from the canvas
+        const texture = new THREE.CanvasTexture(canvas);
+        
+        // Create a plane geometry for the nametag
+        const nametagGeometry = new THREE.PlaneGeometry(0.5, 0.125);
+        const nametagMaterial = new THREE.MeshBasicMaterial({ 
+            map: texture,
+            transparent: true,
+            side: THREE.DoubleSide
+        });
+        
+        // Create nametag mesh
+        const nametagMesh = new THREE.Mesh(nametagGeometry, nametagMaterial);
+        
+        // Add to the holder (không phải trực tiếp vào model)
+        nametagHolder.add(nametagMesh);
+        
+        // Store reference for animation
+        astronautModel.userData.nametagMesh = nametagMesh;
+    }
+
+    // Function to add jet particle effects
+    function addJetParticles(astronautModel) {
+        // Create a simple particle system for jet propulsion effect
+        const particleCount = 20;
+        const particleGeometry = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        
+        // Set initial positions in a small area below the astronaut
+        for (let i = 0; i < particleCount; i++) {
+            const i3 = i * 3;
+            particlePositions[i3] = (Math.random() - 0.5) * 0.05;
+            particlePositions[i3 + 1] = (Math.random() - 0.5) * 0.05 - 0.1; // Below the astronaut
+            particlePositions[i3 + 2] = (Math.random() - 0.5) * 0.05;
+        }
+        
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        
+        // Create a particle material with a soft glow
+        const particleMaterial = new THREE.PointsMaterial({
+            color: 0x3a86ff,
+            size: 0.01,
+            transparent: true,
+            opacity: 0.6,
+            blending: THREE.AdditiveBlending
+        });
+        
+        // Create the particle system
+        const particles = new THREE.Points(particleGeometry, particleMaterial);
+        
+        // Add to astronaut and store reference for animation
+        astronautModel.add(particles);
+        astronautModel.userData.jetParticles = particles;
+        astronautModel.userData.particlePositions = particlePositions;
+    }
 
     // Variables for rotation
     let targetRotationY = 0;
@@ -691,40 +831,142 @@ Promise.all([
             atmosphere.rotation.y = currentRotationY;
             atmosphere.rotation.x = currentRotationX;
             
-            // Rotate 3D text around the Earth
-            if (text3D) {
-                // Orbit the text around the Earth
-                const textOrbitSpeed = 0.0005 * deltaTime;
-                text3D.rotation.y += textOrbitSpeed;
+            // Rotate Among Us astronaut around the Earth
+            if (astronauts) {
+                // Create smooth orbit path for astronaut
+                const orbitSpeed = 0.0002 * deltaTime;
+                const astronaut = astronauts.children[0];
                 
-                // Create pulsing animation for the text
-                const pulseAmount = 0.05;
-                const pulseSpeed = 0.003;
-                const pulseValue = Math.sin(currentTime * pulseSpeed) * pulseAmount + 1;
-                
-                // Apply pulsing effect to each text mesh
-                text3D.children.forEach((textMesh, index) => {
-                    // Make each text mesh always face the camera
-                    textMesh.lookAt(camera.position);
-                    
-                    // Apply pulsing to emissive intensity
-                    if (textMesh.material && textMesh.material.emissiveIntensity !== undefined) {
-                        textMesh.material.emissiveIntensity = 0.3 + Math.sin(currentTime * 0.002 + index) * 0.2;
-                        textMesh.material.needsUpdate = true;
+                if (astronaut) {
+                    // Store initial angle if not yet defined
+                    if (astronaut.userData.orbitAngle === undefined) {
+                        astronaut.userData.orbitAngle = 0;
                     }
                     
-                    // Apply subtle scaling animation
-                    textMesh.scale.set(pulseValue, pulseValue, pulseValue);
+                    // Update orbit angle
+                    astronaut.userData.orbitAngle += orbitSpeed;
+                    const angle = astronaut.userData.orbitAngle;
                     
-                    // Animate glow opacity
-                    if (textMesh.children.length > 0) {
-                        const glowMesh = textMesh.children[0];
-                        if (glowMesh.material) {
-                            glowMesh.material.opacity = 0.3 + Math.sin(currentTime * 0.003 + index * 0.5) * 0.2;
-                            glowMesh.material.needsUpdate = true;
+                    // Define orbit path (slightly elliptical)
+                    const orbitRadius = 2;
+                    const orbitRadiusY = 0.2;
+                    astronaut.position.x = Math.sin(angle) * orbitRadius;
+                    astronaut.position.z = Math.cos(angle) * orbitRadius;
+                    astronaut.position.y = Math.sin(angle * 2) * orbitRadiusY + 0.3;
+                    
+                    // Create floating effect animation
+                    const floatAmount = 0.02;
+                    const floatSpeed = 0.003;
+                    const floatValue = Math.sin(currentTime * floatSpeed) * floatAmount;
+                    astronaut.position.y += floatValue;
+                    
+                    // Make astronaut look at Earth center
+                    astronaut.lookAt(0, 0, 0);
+                    
+                    // Add slight tilt in movement direction
+                    const tangent = new THREE.Vector3(
+                        Math.cos(angle),
+                        0,
+                        -Math.sin(angle)
+                    ).normalize();
+                    
+                    // Create a quaternion for the tilt
+                    const tiltAmount = 0.2; // Slight tilt
+                    const tiltAxis = new THREE.Vector3().crossVectors(
+                        new THREE.Vector3(0, 1, 0),
+                        tangent
+                    ).normalize();
+                    
+                    const tiltQuaternion = new THREE.Quaternion().setFromAxisAngle(
+                        tiltAxis,
+                        tiltAmount
+                    );
+                    
+                    // Apply tilt in movement direction
+                    astronaut.quaternion.premultiply(tiltQuaternion);
+                    
+                    // Make nametag always face camera
+                    if (astronaut.userData.nametagMesh) {
+                        const nametag = astronaut.userData.nametagMesh;
+                        
+                        // Áp dụng kỹ thuật Billboard để nametag luôn hướng về camera nhưng giữ chiều chữ đúng
+                        // Lấy ma trận quay đang áp dụng cho model
+                        const modelRotation = new THREE.Quaternion();
+                        astronaut.getWorldQuaternion(modelRotation);
+                        
+                        // Bù lại sự quay của model để nametag quay độc lập
+                        nametag.quaternion.copy(modelRotation).invert();
+                        
+                        // Áp dụng quay hướng về phía camera (chỉ quay theo trục Y)
+                        const camPosition = new THREE.Vector3();
+                        camera.getWorldPosition(camPosition);
+                        
+                        // Tạo vector từ model tới camera, chỉ xét component x và z (nằm ngang)
+                        const lookDir = new THREE.Vector3();
+                        astronaut.getWorldPosition(lookDir);
+                        camPosition.y = lookDir.y; // Giữ cùng độ cao
+                        lookDir.subVectors(camPosition, lookDir).normalize();
+                        
+                        // Tính góc quay trục Y để hướng về phía camera
+                        const angle = Math.atan2(lookDir.x, lookDir.z);
+                        const billboardRotation = new THREE.Quaternion();
+                        billboardRotation.setFromAxisAngle(new THREE.Vector3(0, 1, 0), angle);
+                        
+                        // Áp dụng quay billboard
+                        nametag.quaternion.premultiply(billboardRotation);
+                        
+                        // Make nametag light flicker for attention
+                        if (astronaut.userData.nametagLight) {
+                            const light = astronaut.userData.nametagLight;
+                            light.intensity = 1.0 + Math.sin(currentTime * 0.005) * 0.5;
+                            
+                            // Change light color slightly for dynamic effect
+                            const hue = 0.0 + Math.sin(currentTime * 0.001) * 0.05; // Điều chỉnh cho màu đỏ
+                            light.color.setHSL(hue, 1.0, 0.5);
+                        }
+                        
+                        // Pulse effect on nametag (only for TextGeometry nametag)
+                        if (nametag.material && nametag.material.emissiveIntensity !== undefined) {
+                            const pulseSpeed = 0.002;
+                            nametag.material.emissiveIntensity = 1.0 + Math.sin(currentTime * pulseSpeed) * 0.5;
+                            nametag.material.needsUpdate = true;
                         }
                     }
-                });
+                    
+                    // Animate glow effect
+                    if (astronaut.userData.glow) {
+                        const glow = astronaut.userData.glow;
+                        glow.material.opacity = 0.2 + Math.sin(currentTime * 0.003) * 0.1;
+                    }
+                    
+                    // Animate jet particles
+                    if (astronaut.userData.jetParticles && astronaut.userData.particlePositions) {
+                        const particles = astronaut.userData.jetParticles;
+                        const positions = astronaut.userData.particlePositions;
+                        const positionAttribute = particles.geometry.getAttribute('position');
+                        
+                        // Update each particle position
+                        for (let i = 0; i < positions.length / 3; i++) {
+                            const i3 = i * 3;
+                            
+                            // Move particle downward
+                            positions[i3 + 1] -= 0.01 * Math.random();
+                            
+                            // Reset particle if it's too far down
+                            if (positions[i3 + 1] < -0.3) {
+                                positions[i3] = (Math.random() - 0.5) * 0.05;
+                                positions[i3 + 1] = -0.1;
+                                positions[i3 + 2] = (Math.random() - 0.5) * 0.05;
+                            }
+                            
+                            // Add some random horizontal movement
+                            positions[i3] += (Math.random() - 0.5) * 0.005;
+                            positions[i3 + 2] += (Math.random() - 0.5) * 0.005;
+                        }
+                        
+                        positionAttribute.needsUpdate = true;
+                    }
+                }
             }
             
             // If we're zooming out, smoothly move camera back with constraints
@@ -745,6 +987,7 @@ Promise.all([
         earthShaderMaterial.uniforms.lightPosition.value = directionalLight.position;
         earthShaderMaterial.uniforms.time.value += deltaTime * 0.001;
         
+        controls.update();
         renderer.render(scene, camera);
     }
 
