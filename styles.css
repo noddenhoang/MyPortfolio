@@ -310,7 +310,7 @@ body {
     border-radius: var(--border-radius);
     overflow: hidden;
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     box-shadow: var(--box-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 3rem;
@@ -523,7 +523,7 @@ p {
     padding: 3rem;
     border-radius: var(--border-radius);
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     box-shadow: var(--box-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     position: relative;
@@ -588,7 +588,7 @@ p {
     padding: 2rem;
     border-radius: var(--border-radius);
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     box-shadow: var(--box-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: var(--transition);
@@ -688,7 +688,7 @@ p {
     padding: 2.5rem;
     border-radius: var(--border-radius);
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     box-shadow: var(--box-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
@@ -861,7 +861,7 @@ p {
     padding: 1.5rem 2rem;
     border-radius: var(--border-radius);
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     box-shadow: var(--box-shadow);
     border: 1px solid rgba(255, 255, 255, 0.1);
     transition: var(--transition);
@@ -921,7 +921,7 @@ p {
     padding: 3rem 0;
     text-align: center;
     backdrop-filter: blur(1px);
-    -webkit-backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(1px);
     margin-top: 4rem;
     border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
