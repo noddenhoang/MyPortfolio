@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta name="description" content="Thái Hoàng Bảo - Full Stack Developer | AI Enthusiast - Portfolio website">
 </head>
 <body>
     <div id="earth-container"></div>
@@ -21,10 +22,10 @@
                 <span>ThaiHoangBao</span>
             </div>
             <ul class="nav-links">
-                <li><a href="#home" class="active">Trang chủ</a></li>
-                <li><a href="#about">Giới thiệu</a></li>
-                <li><a href="#skills">Kỹ năng</a></li>
-                <li><a href="#projects">Dự án</a></li>
+                <li><a href="#home" class="active" data-nav-link>Trang chủ</a></li>
+                <li><a href="#about" data-nav-link>Giới thiệu</a></li>
+                <li><a href="#skills" data-nav-link>Kỹ năng</a></li>
+                <li><a href="#projects" data-nav-link>Dự án</a></li>
             </ul>
             <div class="language-switcher">
                 <button id="langToggle" class="lang-btn"><span class="current-lang">VI</span> | <span class="alt-lang">EN</span></button>
@@ -48,8 +49,8 @@
                             <p><i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính</p>
                         </div>
                         <div class="cta-buttons">
-                            <a href="#projects" class="primary-btn">Xem dự án</a>
-                            <a href="#about" class="secondary-btn">Giới thiệu</a>
+                            <a href="#projects" class="primary-btn"><i class="fa-solid fa-rocket"></i> Xem dự án</a>
+                            <a href="#about" class="secondary-btn"><i class="fa-solid fa-user"></i> Giới thiệu</a>
                         </div>
                     </div>
                 </div>
@@ -162,7 +163,7 @@
                 <div class="footer-contact">
                     <h3>Liên Hệ</h3>
                     <div class="contact-links">
-                        <a href="mailto:contact@thaihoangbao181003@gmail.com" class="contact-link">
+                        <a href="mailto:thaihoangbao181003@gmail.com" class="contact-link">
                             <i class="fa-solid fa-envelope contact-icon"></i>
                             <span>thaihoangbao181003@gmail.com</span>
                         </a>
@@ -190,8 +191,37 @@
     </script>
     <script type="module" src="script.js"></script>
     <script>
+        // Elements for intersection observer to trigger animations
+        const observeElements = document.querySelectorAll('.section-header, .profile-content, .about-content, .skill-category, .project-card');
+        
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                // If element is in view
+                if (entry.isIntersecting) {
+                    entry.target.style.visibility = 'visible';
+                    // Add specific animation class based on element type
+                    if (entry.target.classList.contains('section-header')) {
+                        entry.target.style.animationDelay = '0.1s';
+                    }
+                    // Stop observing after animation is triggered
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        });
+        
+        // Start observing elements
+        observeElements.forEach(element => {
+            // Initially hide elements that will be animated
+            element.style.visibility = 'visible';
+            observer.observe(element);
+        });
+
         // Smooth scrolling for navigation links
-        document.querySelectorAll('.nav-links a').forEach(anchor => {
+        document.querySelectorAll('[data-nav-link]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
                 
@@ -204,7 +234,7 @@
                 });
                 
                 // Update active class
-                document.querySelectorAll('.nav-links a').forEach(link => {
+                document.querySelectorAll('[data-nav-link]').forEach(link => {
                     link.classList.remove('active');
                 });
                 this.classList.add('active');
@@ -315,8 +345,8 @@
             document.querySelector('.tagline').textContent = 'Full Stack Developer | AI Enthusiast';
             document.querySelector('.info-label').textContent = 'Education:';
             document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Education:</span> Bachelor of Computer Science';
-            document.querySelectorAll('.cta-buttons a')[0].textContent = 'View Projects';
-            document.querySelectorAll('.cta-buttons a')[1].textContent = 'About';
+            document.querySelectorAll('.cta-buttons a')[0].innerHTML = '<i class="fa-solid fa-rocket"></i> View Projects';
+            document.querySelectorAll('.cta-buttons a')[1].innerHTML = '<i class="fa-solid fa-user"></i> About';
             document.querySelector('.scroll-down span').textContent = 'Scroll Down';
             
             // About section
@@ -355,8 +385,8 @@
             document.querySelector('.tagline').textContent = 'Lập trình viên Full Stack | AI Enthusiast';
             document.querySelector('.info-label').textContent = 'Học vấn:';
             document.querySelectorAll('.basic-info p')[0].innerHTML = '<i class="fa-solid fa-graduation-cap info-icon"></i><span class="info-label">Học vấn:</span> Cử nhân Khoa học Máy tính';
-            document.querySelectorAll('.cta-buttons a')[0].textContent = 'Xem dự án';
-            document.querySelectorAll('.cta-buttons a')[1].textContent = 'Giới thiệu';
+            document.querySelectorAll('.cta-buttons a')[0].innerHTML = '<i class="fa-solid fa-rocket"></i> Xem dự án';
+            document.querySelectorAll('.cta-buttons a')[1].innerHTML = '<i class="fa-solid fa-user"></i> Giới thiệu';
             document.querySelector('.scroll-down span').textContent = 'Cuộn xuống';
             
             // About section
@@ -378,6 +408,22 @@
             // Footer contact section
             document.querySelector('.footer-contact h3').textContent = 'Liên Hệ';
         }
+        
+        // Add location button
+        const addLocationButton = () => {
+            const button = document.createElement('button');
+            button.className = 'location-btn';
+            button.innerHTML = '<i class="fa-solid fa-location-dot"></i>';
+            button.title = 'Zoom to Đà Nẵng';
+            button.onclick = () => {
+                // This will call the function in the module script
+                window.dispatchEvent(new CustomEvent('zoomToDaNang'));
+            };
+            document.body.appendChild(button);
+        };
+        
+        // Add the location button after page load
+        window.addEventListener('load', addLocationButton);
     </script>
 </body>
 </html> 

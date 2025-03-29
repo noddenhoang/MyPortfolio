@@ -174,6 +174,7 @@ window.addEventListener('resize', () => {
 
 // Function to temporarily disable auto-rotation when user interacts
 function disableAutoRotation() {
+    isAutoRotating = false;
     lastInteractionTime = Date.now();
 }
 
@@ -306,6 +307,99 @@ document.addEventListener('contextmenu', (event) => {
     event.preventDefault();
 });
 
+// Listen for custom event to zoom to Da Nang
+window.addEventListener('zoomToDaNang', () => {
+    zoomToDaNang();
+});
+
+// Create visible stars in the background
+const createStars = () => {
+    // Create a simple circular texture for stars
+    const canvas = document.createElement('canvas');
+    canvas.width = 32;
+    canvas.height = 32;
+    
+    const context = canvas.getContext('2d');
+    
+    // Draw a simple white circle with gradient
+    const gradient = context.createRadialGradient(16, 16, 0, 16, 16, 16);
+    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+    gradient.addColorStop(0.2, 'rgba(240, 248, 255, 0.8)');
+    gradient.addColorStop(0.5, 'rgba(240, 240, 255, 0.5)');
+    gradient.addColorStop(1, 'rgba(240, 240, 255, 0)');
+    
+    context.fillStyle = gradient;
+    context.beginPath();
+    context.arc(16, 16, 16, 0, Math.PI * 2);
+    context.fill();
+    
+    // Create texture from canvas
+    const starTexture = new THREE.CanvasTexture(canvas);
+    
+    // Create a star field with twinkling effect
+    const starsGeometry = new THREE.BufferGeometry();
+    const starsMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.3,
+        map: starTexture,
+        transparent: true,
+        alphaTest: 0.01,
+        sizeAttenuation: true,
+        blending: THREE.AdditiveBlending,
+    });
+    
+    const starsCount = 1500;
+    const positions = new Float32Array(starsCount * 3);
+    const sizes = new Float32Array(starsCount);
+    const colors = new Float32Array(starsCount * 3);
+    const starSpeeds = new Float32Array(starsCount);
+    
+    for (let i = 0; i < starsCount; i++) {
+        const i3 = i * 3;
+        
+        // Position stars in a sphere around the center
+        const radius = 30 + Math.random() * 20;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        
+        positions[i3] = radius * Math.sin(phi) * Math.cos(theta);
+        positions[i3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+        positions[i3 + 2] = radius * Math.cos(phi);
+        
+        // Random sizes for stars
+        sizes[i] = 0.1 + Math.random() * 0.9;
+        
+        // Slightly different colors for stars
+        const hue = Math.random() * 0.1 + 0.6; // Blue to white
+        const color = new THREE.Color().setHSL(hue, 0.2, 0.8);
+        colors[i3] = color.r;
+        colors[i3 + 1] = color.g;
+        colors[i3 + 2] = color.b;
+        
+        // Random speeds for twinkling
+        starSpeeds[i] = 0.01 + Math.random() * 0.04;
+    }
+    
+    starsGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    starsGeometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+    starsGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    
+    // Store speed data for animation
+    starsGeometry.userData = { 
+        speeds: starSpeeds,
+        time: 0,
+        originalSizes: sizes.slice()
+    };
+    
+    const stars = new THREE.Points(starsGeometry, starsMaterial);
+    scene.add(stars);
+    
+    return stars;
+};
+
+// Add stars to the scene with twinkling effect
+const stars = createStars();
+
 // Animation loop
 function animate() {
     requestAnimationFrame(animate);
@@ -313,6 +407,28 @@ function animate() {
     const currentTime = Date.now();
     const deltaTime = currentTime - lastTime;
     lastTime = currentTime;
+    
+    // Animate stars twinkling
+    if (stars && stars.geometry) {
+        const geometry = stars.geometry;
+        const originalSizes = geometry.userData.originalSizes;
+        const speeds = geometry.userData.speeds;
+        geometry.userData.time += deltaTime * 0.001;
+        
+        const sizes = geometry.attributes.size.array;
+        for (let i = 0; i < sizes.length; i++) {
+            // Create twinkling effect with sine wave
+            const phase = geometry.userData.time * speeds[i];
+            const scale = 0.5 + Math.sin(phase * 5) * 0.5;
+            sizes[i] = originalSizes[i] * scale;
+        }
+        
+        geometry.attributes.size.needsUpdate = true;
+        
+        // Rotate stars slowly in the opposite direction of earth rotation
+        // This creates the illusion that the stars are fixed and the earth is rotating
+        stars.rotation.y = -currentRotationY * 0.1;
+    }
     
     // Check if we should resume auto-rotation
     if (!isAutoRotating && currentTime - lastInteractionTime > AUTO_ROTATION_DELAY && !isZooming && !isDragging) {
@@ -419,4 +535,5 @@ function zoomToDaNang() {
     // Start zooming
     isZooming = true;
     zoomStartTime = Date.now();
+    disableAutoRotation();
 } 
