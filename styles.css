@@ -91,6 +91,7 @@ body {
     height: 100%;
     z-index: -1;
     cursor: pointer;
+    touch-action: none;
 }
 
 #earth-container:hover {
